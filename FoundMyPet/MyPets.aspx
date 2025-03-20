@@ -6,54 +6,48 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-8 offset-md-2">
-<div id="petsContainer" runat="server">
-    <asp:Repeater ID="RepeatInformation" runat="server">
-        <HeaderTemplate>
-            <div class="pets-list">
-        </HeaderTemplate>
+                <div id="petsContainer" runat="server">
+                    <asp:Repeater ID="RepeatInformation" runat="server">
+                        <HeaderTemplate>
+                            <div class="pets-list">
+                        </HeaderTemplate>
 
-        <ItemTemplate>
-            <div class="pet-card d-flex align-items-center p-3 shadow-sm">
-                <!-- Pet Image -->
-                <div>
-                    <img class="pet-photo img-fluid rounded" src="<%# Eval("pet_photo") %>" alt="Pet Image">
+                        <ItemTemplate>
+                            <div class="pet-card d-flex align-items-center p-3 shadow-sm">
+
+                                <div>
+                                    <img class="pet-photo" src="<%# Eval("pet_photo") %>" alt="Pet Image">
+                                </div>
+
+                                <div class="pet-info ms-3">
+                                    <p><strong>Name:</strong> <%# Eval("pet_name") %></p>
+                                    <p><strong>Contact:</strong> <%# Eval("contact_details") %></p>
+                                    <p><strong>Lost at:</strong> <%# Eval("lost_location") %></p>
+                                </div>
+
+                                <div class="ms-auto">
+                                    <a href="#" class="btn btn-success" onclick='markAsFound(<%# Eval("pet_id")%>)'>Found</a>
+                                </div>
+                            </div>
+                        </ItemTemplate>
+
+                        <FooterTemplate>
+                            </div>
+                        </FooterTemplate>
+                    </asp:Repeater>
                 </div>
 
-                <!-- Pet Info -->
-                <div class="pet-info ms-3">
-                    <p><strong>Name:</strong> <%# Eval("pet_name") %></p>
-                    <p><strong>Contact:</strong> <%# Eval("contact_details") %></p>
-                    <p><strong>Lost at:</strong> <%# Eval("lost_location") %></p>
-                </div>
-
-                <!-- Found Button -->
-                <div class="ms-auto">
-                    <a href="#" class="btn btn-success" onclick='markAsFound(<%# Eval("pet_id")%>)'>Found</a>
+                <div id="Div1" runat="server" visible="false" class="text-center mt-4">
+                    <h5 class="text-muted">No pets found.</h5>
                 </div>
             </div>
-        </ItemTemplate>
 
-        <FooterTemplate>
+            <div id="noDataMessage" runat="server" visible="false" class="text-center mt-4">
+                <h5 class="text-muted">No pets found.</h5>
             </div>
-        </FooterTemplate>
-    </asp:Repeater>
-</div>
 
-<!-- No Data Found Message -->
-<div id="Div1" runat="server" visible="false" class="text-center mt-4">
-    <h5 class="text-muted">No pets found.</h5>
-</div>
-</div>
-
-<!-- No Data Found Message -->
-<div id="noDataMessage" runat="server" visible="false" class="text-center mt-4">
-    <h5 class="text-muted">No pets found.</h5>
-</div>
-
-            </div>
         </div>
     </div>
-
     <script>
 
 
