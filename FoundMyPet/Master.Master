@@ -1,0 +1,223 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Master.master.cs" Inherits="FoundMyPet.Master" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link href="Assets/style.css" rel="stylesheet" />
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">
+    <img src='<%= ResolveUrl("~/Assets/img/logo.png") %>' alt="FindPets Logo" style="height: 50px; width: auto;">
+</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#" data-bs-toggle="modal" data-bs-target="#addPetModal">Add Pets</a>
+
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="MyPets.aspx">My Pets</a>
+                    </li>
+                    <li class="nav-item" runat="server" id="loginNavItem">
+                        <a class="nav-link" href="login.aspx">Login</a>
+                    </li>
+
+                    <li class="nav-item" runat="server" id="logout">
+                        <a class="nav-link" href="logout.aspx">Logout</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <form id="form1" runat="server">
+        <div>
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+
+
+        <div class="modal fade" id="addPetModal" tabindex="-1" aria-labelledby="addPetModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addPetModalLabel">Add Pet</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="petName" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="petName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactDetails" class="form-label">Contact Details:</label>
+                            <input type="email" class="form-control" id="contactDetails" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="lostLocation" class="form-label">Lost At:</label>
+                            <input type="text" class="form-control" id="lostLocation" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="petImage" class="form-label">Pet Image:</label>
+                            <input type="file" class="form-control" id="petImage" accept="image/*" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button id="submitPetButton" type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    var page = 1;
+    var isLoading = false;
+
+    function loadMorePets() {
+        if (isLoading) return;
+        isLoading = true;
+        $("#loading").show();
+
+        $.ajax({
+            type: "GET",
+            url: "AddPet.ashx",
+            data: { page: page },
+            dataType: "json",
+            success: function (response) {
+                if (response.length > 0) {
+                    response.forEach(pet => {
+                        addPetToUI(pet, false);
+                    });
+                    page++;
+                }
+                isLoading = false;
+                $("#loading").hide();
+            },
+            error: function () {
+                isLoading = false;
+                $("#loading").hide();
+                Swal.fire("Error", "Failed to load pets", "error");
+            }
+        });
+    }
+
+    function addPetToUI(pet, isNew = false) {
+        var petCard = `
+            <div class="pet-card">
+                <div><img class="pet-photo" src="${pet.pet_photo}" alt="Pet Image"></div>
+                <div class="pet-info">
+                    <p><strong>Name:</strong> ${pet.pet_name}</p>
+                    <p><strong>Contact details:</strong> ${pet.contact_details}</p>
+                    <p><strong>Lost at:</strong> ${pet.lost_location}</p>
+                </div>
+            </div>`;
+
+        if (isNew) {
+            $("#petList").prepend(petCard);
+        } else {
+            $("#petList").append(petCard);
+        }
+    }
+
+
+    $(window).scroll(function () {
+        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+            loadMorePets();
+        }
+    });
+
+
+    $("#submitPetButton").click(function (e) {
+        e.preventDefault();
+
+
+        var petName = $("#petName").val().trim();
+        var contactDetails = $("#contactDetails").val().trim();
+        var lostLocation = $("#lostLocation").val().trim();
+        var petImageFile = $("#petImage")[0].files[0];
+
+        if (!petName || !contactDetails || !lostLocation || !petImageFile) {
+            Swal.fire("Error", "All fields are required!", "warning");
+            return;
+        }
+
+
+        var allowedExtensions = ["image/jpeg", "image/png", "image/gif"];
+        if (!allowedExtensions.includes(petImageFile.type)) {
+            Swal.fire("Error", "Only JPG, PNG, and GIF images are allowed!", "warning");
+            return;
+        }
+
+
+        if (petImageFile.size > 5 * 1024 * 1024) {
+            Swal.fire("Error", "File size must be less than 5MB!", "warning");
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append("petName", petName);
+        formData.append("contactDetails", contactDetails);
+        formData.append("lostLocation", lostLocation);
+        formData.append("petImage", petImageFile);
+
+        $.ajax({
+            type: "POST",
+            url: "AddPet.ashx",
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire("Success", "Pet added successfully!", "success");
+
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('addPetModal'));
+                    modal.hide();
+
+                    addPetToUI(response, true);
+
+                    $("#petName").val("");
+                    $("#contactDetails").val("");
+                    $("#lostLocation").val("");
+                    $("#petImage").val("");
+                } else {
+                    Swal.fire("Error", response.message || "Failed to add pet", "error");
+                }
+            },
+            error: function () {
+                Swal.fire("Error", "Failed to add pet", "error");
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        loadMorePets();
+    });
+</script>
+
+</html>
